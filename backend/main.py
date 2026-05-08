@@ -11,9 +11,10 @@ from routers import (
     admin, services, finance,
 )
 
-os.makedirs(settings.UPLOADS_DIR, exist_ok=True)
-os.makedirs(f"{settings.UPLOADS_DIR}/quotes", exist_ok=True)
-os.makedirs(f"{settings.UPLOADS_DIR}/portfolio", exist_ok=True)
+uploads_base = settings.UPLOADS_DIR if settings.ENVIRONMENT != "production" else "/tmp/uploads"
+os.makedirs(uploads_base, exist_ok=True)
+os.makedirs(f"{uploads_base}/quotes", exist_ok=True)
+os.makedirs(f"{uploads_base}/portfolio", exist_ok=True)
 
 Base.metadata.create_all(bind=engine)
 
@@ -47,7 +48,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/uploads", StaticFiles(directory=settings.UPLOADS_DIR), name="uploads")
+app.mount("/uploads", StaticFiles(directory=uploads_base), name="uploads")
 
 app.include_router(auth.router)
 app.include_router(quotes.router)
