@@ -23,7 +23,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error: loginError } = await login(email, password);
+    const { error: loginError, role } = await login(email, password);
 
     if (loginError) {
       setError(loginError);
@@ -31,28 +31,7 @@ export default function LoginPage() {
       setShake(true);
       setTimeout(() => setShake(false), 500);
     } else {
-      // We need to fetch user role to decide redirection, but `login` in context does it internally
-      // However, we can just redirect to "/" and let AdminLayout push them to login if they try to access admin
-      // A better way is to wait a tick so the context updates, or read it from localStorage if we added role.
-      // But we can just route to "/admin/dashboard" if they have an admin email, but that's hardcoded.
-      // Let's just route to "/" and let the user click "Admin Dashboard" in Navbar if they are admin.
-      // Actually, H&B admins usually login and want to go to dashboard.
-      // Let's fetch user object here manually to redirect smartly, or just redirect to "/".
-      // We will redirect to "/" and the Navbar will show "Dashboard" if they are admin.
-      // To be seamless, I'll delay redirection slightly to let Context populate.
-      // Decode JWT properly (base64url → base64 with padding)
-      const token = localStorage.getItem("hb_token");
-      let redirectPath = "/";
-      if (token) {
-        try {
-          const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-          const padded = b64 + "==".slice((b64.length + 3) % 4);
-          const payload = JSON.parse(atob(padded));
-          if (payload.role === ROLES.ADMIN || payload.role === ROLES.SALES) {
-            redirectPath = "/admin/dashboard";
-          }
-        } catch {}
-      }
+      const redirectPath = (role === ROLES.ADMIN || role === ROLES.SALES) ? "/admin/dashboard" : "/";
       router.push(redirectPath);
     }
   };

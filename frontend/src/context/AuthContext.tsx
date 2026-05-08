@@ -16,7 +16,7 @@ export interface UserObject {
 interface AuthContextType {
   user: UserObject | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<{ error?: string }>;
+  login: (email: string, password: string) => Promise<{ error?: string; role?: string }>;
   logout: () => void;
   isAdmin: boolean;
   isSales: boolean;
@@ -30,9 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const decodeTokenUser = (token: string): { sub?: string; role?: string } | null => {
+  const decodeJwt = (t: string): { sub?: string; role?: string } | null => {
     try {
-      const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      const b64 = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
       const padded = b64 + "==".slice((b64.length + 3) % 4);
       return JSON.parse(atob(padded));
     } catch {
@@ -60,12 +60,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     } else if (status === 0 && attempt === 1) {
       // Network error (cold start) — set minimal user from JWT and retry in background
-      const payload = decodeTokenUser(storedToken);
+      const payload = decodeJwt(storedToken);
       if (payload?.role) {
         setUser({ id: 0, email: payload.sub ?? "", full_name: "", role: (payload.role ?? "CLIENT") as keyof typeof ROLES, is_active: true, created_at: "" });
       }
       setIsLoading(false);
-      // Retry once after 4 seconds to get full user data
       setTimeout(() => fetchUser(2), 4000);
     } else {
       setIsLoading(false);
@@ -87,19 +86,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error || "Failed to login" };
     }
 
-    const token = data.access_token;
-    localStorage.setItem("hb_token", token);
-    setToken(token);
+    const t = data.access_token;
+    localStorage.setItem("hb_token", t);
+    setToken(t);
 
-    // Immediately populate user from JWT so admin layout guard passes without waiting for /api/auth/me
-    const payload = decodeTokenUser(token);
-    if (payload?.role) {
-      setUser({ id: 0, email: payload.sub as string ?? email, full_name: "", role: payload.role as keyof typeof ROLES, is_active: true, created_at: "" });
-    }
+    const payload = decodeJwt(t);
+    const role = payload?.role ?? "CLIENT";
 
-    // Fetch full user data in background (non-blocking)
+    setUser({ id: 0, email: payload?.sub ?? email, full_name: "", role: role as keyof typeof ROLES, is_active: true, created_at: "" });
+
+    // Fetch full user data in background
     fetchUser();
-    return {};
+
+    return { role };
   };
 
   const logout = () => {

@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
 
@@ -11,16 +11,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
 
+  // Tracks whether localStorage has a token — starts true (optimistic) to avoid
+  // flashing a redirect on first render before localStorage can be read.
+  const [hasStoredToken, setHasStoredToken] = useState(true);
+
   useEffect(() => {
-    if (!isLoading && !user && pathname !== "/login") {
+    setHasStoredToken(!!localStorage.getItem("hb_token"));
+  }, []);
+
+  useEffect(() => {
+    if (isLoading || hasStoredToken) return;
+    // Only redirect when we are certain there is no token at all
+    if (!user) {
       router.push("/login");
-    } else if (!isLoading && user && !(isAdmin || isSales) && pathname !== "/login") {
-      // User is authenticated but doesn't have admin/sales role
+    } else if (!(isAdmin || isSales)) {
       router.push("/");
     }
-  }, [user, isLoading, router, pathname, isAdmin, isSales]);
+  }, [user, isLoading, hasStoredToken, router, isAdmin, isSales]);
 
-  if (isLoading) {
+  // While the auth context is initializing, or while a token exists but the user
+  // object hasn't been populated yet (post-login race window or cold-start), show
+  // the loading spinner instead of doing a premature redirect.
+  if (isLoading || (hasStoredToken && !user)) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-primary">
         <Loader2 className="w-8 h-8 text-accent animate-spin" />
@@ -28,12 +40,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // If on login page, just render the content without sidebar
-  if (pathname === "/login") {
-    return <>{children}</>;
-  }
-
-  // If user is not authorized, don't render the layout (effect will redirect)
   if (!user || !(isAdmin || isSales)) {
     return null;
   }
