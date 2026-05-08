@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Environment variables — NEVER commit these
+.env
+.env.*
+!.env.example
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads (user-generated content)
+backend/uploads/
+
+# Claude AI session files
+.claude/
+
+# Misc project files
+extracted_pdf.txt
+"Event Business Web App Blueprint - Google Gemini.pdf"
+working.txt.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
