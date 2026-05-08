@@ -28,13 +28,20 @@ app = FastAPI(
     redoc_url="/api/redoc",
 )
 
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.100.20:3000",
+    "https://hbeventsolution.com",
+    "https://frontend-h7af3cttc-muhammad-muhaddas-projects.vercel.app",
+    "https://frontend-seven-psi-bdszabpp9y.vercel.app",
+]
+
+if os.getenv("FRONTEND_URL"):
+    ALLOWED_ORIGINS.append(os.getenv("FRONTEND_URL"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://192.168.100.20:3000",
-        "https://hbeventsolution.com",
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: hb-event-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hb-event-db
+          property: connectionString
+      - key: SECRET_KEY
+        value: 0d3756048fa2c525dc9362a86042086eb131bc13eaa8fc3deb5507f4f4ade727
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "10080"
+      - key: UPLOADS_DIR
+        value: uploads
+      - key: ENVIRONMENT
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+
+databases:
+  - name: hb-event-db
+    plan: free
+    databaseName: hb_event_solution
