@@ -103,7 +103,7 @@ export function ContactClient() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white mb-1">Phone Number</h3>
-                    <p className="text-muted">+92 300 0000000</p>
+                    <p className="text-muted">+92 333 4494509</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -112,7 +112,7 @@ export function ContactClient() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white mb-1">Email Address</h3>
-                    <p className="text-muted">info@hbeventsolution.com</p>
+                    <p className="text-muted">haris.basit143@gmail.com</p>
                   </div>
                 </div>
               </div>

@@ -9,15 +9,36 @@ import { fetchApi } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
+const FALLBACK_SERVICES = [
+  {
+    id: 1, slug: "smd-screen-rental", name: "High-Definition SMD Screen Rentals",
+    short_description: "Scalable indoor and outdoor SMD displays with zero dead pixels and seamless playback.",
+    full_description: "Deliver your message with uncompromising clarity. We provide scalable, high-brightness SMD screens perfectly calibrated for both indoor ballrooms and outdoor arenas. Certified engineers remain on-site for the entire event duration.",
+    features_json: '["Indoor P3 & Outdoor P6 screens","Custom sizes available","Zero dead-pixel guarantee","On-site technician included","Backup equipment on standby"]',
+  },
+  {
+    id: 2, slug: "sound-system-rental", name: "Concert-Grade Sound System Engineering",
+    short_description: "Professional line-array systems and wireless microphone setups engineered for your venue acoustics.",
+    full_description: "Bad audio ruins great events. We supply and engineer premium line-array sound systems, mixing consoles, and wireless microphone setups tailored to the acoustics of your specific venue.",
+    features_json: '["JBL professional line-array systems","Digital mixing consoles","4-channel wireless microphone kits","Acoustic venue assessment included","On-site sound engineer"]',
+  },
+  {
+    id: 3, slug: "3d-stall-fabrication", name: "Custom 3D Stall Fabrication",
+    short_description: "From digital 3D render to physical build — premium exhibition stalls that command attention.",
+    full_description: "We turn standard floor space into an immersive brand experience. From the initial 3D digital render to the final wood and acrylic fabrication, we handle everything in-house with no middlemen.",
+    features_json: '["3D digital render before fabrication","Premium wood, acrylic & metal materials","Custom branding & LED lighting","On-time delivery guaranteed","Full setup and teardown included"]',
+  },
+];
+
 export function ServicesClient() {
-  const [services, setServices] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>(FALLBACK_SERVICES);
   const [loading, setLoading] = useState(true);
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const loadServices = async () => {
       const { data } = await fetchApi("/api/services/");
-      if (data) setServices(data);
+      if (data && Array.isArray(data) && data.length > 0) setServices(data);
       setLoading(false);
     };
     loadServices();
