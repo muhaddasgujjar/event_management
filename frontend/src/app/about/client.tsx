@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Variants, type Transition } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -26,19 +26,21 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
-const fadeUp = {
+const ease = "easeOut" as const;
+
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
-  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.55, ease: "easeOut" } }),
+  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.55, ease } as Transition }),
 };
 
-const fadeLeft = {
+const fadeLeft: Variants = {
   hidden: { opacity: 0, x: -32 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  show: { opacity: 1, x: 0, transition: { duration: 0.6, ease } as Transition },
 };
 
-const fadeRight = {
+const fadeRight: Variants = {
   hidden: { opacity: 0, x: 32 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  show: { opacity: 1, x: 0, transition: { duration: 0.6, ease } as Transition },
 };
 
 export function AboutClient() {
